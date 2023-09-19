@@ -1,0 +1,12 @@
+install.packages(c("dplyr",
+                   "stringr",
+                   "tidyverse",
+                   "readr",
+                   "ggplot2",
+                   "caret",
+                   "knitr",
+                   "rmarkdown",
+                   "lubridate",
+                   "zoo",
+                   "RColorBrewer",
+                   "scales"))
