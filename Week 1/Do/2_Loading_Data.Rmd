@@ -1,0 +1,207 @@
+---
+title: "R Seminar Week 1 -- Loading Data"
+author: "John Kearns"
+date: "2023-10-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# this is th initial set up
+# include = FALSE tells R to not show this chunk of code when it knits the page
+# echo = TRUE sets it as a default to show the output of code in the final document
+
+library(tidyverse)
+
+```
+
+## RMarkdown basics
+
+A chunk is where R code is written. You can add a new chunk with ctrl+alt+i
+
+adding include=FALSE or echo=FALSE will affect how the code is shown in the final output
+
+knitting refers to running all of the code and saving it as a certain output (html,pdf,latex)
+
+Headers can be made with #s
+Largest header is one # and lowest is six #s
+
+You can write equations and do fancy things pretty easily in RMarkdown
+Some more resources [here](https://sharp-lamport-f1a531.netlify.app/#1) 
+
+## Let's look at a dataset
+
+### Loading data in
+
+Tip: make strings to refer to file structures so that other people can change it easily and run your code
+
+```{r,echo=FALSE,include=FALSE}
+
+master_dir = "C:/Users/16094/Documents/Year 2 - Princeton/Fall 2023/R Tutoring/SPIA_R_Seminars/Week 1/"
+do_folder = paste0(master_dir,"Do/")
+data_folder = paste0(master_dir,"Data/")
+results_folder = paste0(master_dir,"Results/")
+charts_folder = paste0(master_dir,"Charts/")
+
+```
+
+
+#### There are different ways to load data into R
+You can use point-and-click method by going File -> Import Dataset -> select the type of data you are inserting
+
+I recommend using the readr version when using csv files
+If reading in a txt files or some other dataset that isn't comma-separated, use read.table() or read.delim()
+
+```{r,echo=FALSE}
+
+citibike = read_csv(paste0(data_folder,"Raw/citibike.csv"))
+# what other things can you do with read_csv?
+
+citibike = read.delim(paste0(data_folder,"Raw/citibike.txt"))
+
+```
+
+##### Enter the code here to import the excel version in our files. What about downloading staright from the web from this [link](https://github.com/amueller/introduction_to_ml_with_python/blob/master/data/citibike.csv)?
+
+```{r}
+
+
+
+
+
+```
+
+
+
+#### What is in this dataset?
+```{r}
+
+head(citibike,30)
+
+```
+
+#### What are some things that we want to know about this data?
+Number of men and women? What years does the data cover? Average length of ride?
+
+
+What are some ways to do calculations?
+To see summary statistics of a variable in a dataframe or a vector, use summary()
+To add up values in a vector, use sum()
+To get the mean, use mean()
+To get the median, use median()
+To get variance and standard deviation, use var() and sd()
+
+max() and min() will give you maxmimum and minimum values, while which.max() would give you the index of the value that is the maximum in a vector
+
+BEWARE OF NAs
+
+To test or compare values, you can use inequalities. The code will give back a TRUE or FALSE.
+
+```{r}
+
+2<3
+
+10>15
+
+3==4
+
+3!=4
+
+c(1,2,3,4,5)<=3
+
+"Hello"=="World"
+
+"Hello"=="Hello"
+
+
+```
+
+
+```{r}
+
+# lets start with getting a number of unique bikes
+# length() gives you how long a vector is
+# unique() removes duplicates from a vector
+
+length(citibike$bikeid)
+unique(citibike$birth.year)
+length(unique(citibike$bikeid)) # 2,989 differnt bikes are used in this data set
+
+
+```
+
+```{r}
+# what are some statistics about the length of rides?
+
+summary(citibike)
+
+summary(citibike$tripduration)
+
+mean(citibike$tripduration)
+
+sd(citibike$tripduration)
+
+mean(citibike$birth.year) # why is this giving an error?
+
+
+```
+
+```{r}
+
+# now let's get the number of rides by men and women
+
+# What are the values in the gender column?
+unique(citibike$gender)
+
+# what if we only want to see rides by women? How could we make that as a new variable? 
+
+# code for getting the data frame that only has rides by women:
+
+
+# code for the number of rides by women? By men?
+
+
+# What is the average age of the person in the dataset? 
+
+
+
+
+```
+#### What are the most common destinations?
+```{r}
+
+
+table(citibike$end.station.name)
+
+
+# not easy to see what was the most common?
+```
+```{r}
+
+sort(table(citibike$end.station.name),decreasing=TRUE)[1:10]
+
+```
+
+### Let's save our progress
+```{r}
+
+save.image(paste0(data_folder,"Processing/progress_20231006.RData"))
+
+write.csv(paste0(data_folder,"Final/citibike-final.csv"))
+
+```
+#### FOR EXTRA TIME
+
+Is there a difference in trip time at rush hour? Late at night?
+
+Find the number of trips by the two types of users?
+
+Are women or men more likely to be subscribers?
+
+```{r}
+
+
+
+```
+
