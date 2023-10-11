@@ -1,0 +1,309 @@
+---
+title: "R Seminar Week 2 -- Cleaning Data"
+author: "John Kearns"
+date: "2023-10-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# this is th initial set up
+# include = FALSE tells R to not show this chunk of code when it knits the page
+# echo = TRUE sets it as a default to show the output of code in the final document
+
+library(tidyverse)
+
+```
+
+## RMarkdown basics
+
+A chunk is where R code is written. You can add a new chunk with ctrl+alt+i
+
+adding include=FALSE or echo=FALSE will affect how the code is shown in the final output
+
+knitting refers to running all of the code and saving it as a certain output (html,pdf,latex)
+
+Headers can be made with #s
+Largest header is one # and lowest is six #s
+
+You can write equations and do fancy things pretty easily in RMarkdown
+Some more resources [here](https://sharp-lamport-f1a531.netlify.app/#1) 
+
+## Let's look at a dataset
+
+
+### Reviewing data frames
+
+How do we make a data frame again? What is a data frame made up of?
+
+```{r}
+
+
+
+```
+
+
+
+
+### Loading data in
+
+Tip: make strings to refer to file structures so that other people can change it easily and run your code
+
+```{r,echo=FALSE,include=FALSE}
+
+master_dir = "C:/Users/16094/Documents/Year 2 - Princeton/Fall 2023/R Tutoring/SPIA_R_Seminars/Week 2/"
+do_folder = paste0(master_dir,"Do/")
+data_folder = paste0(master_dir,"Data/")
+results_folder = paste0(master_dir,"Results/")
+charts_folder = paste0(master_dir,"Charts/")
+
+```
+
+
+#### There are different ways to load data into R
+You can use point-and-click method by going File -> Import Dataset -> select the type of data you are inserting
+
+I recommend using the readr version when using csv files
+If reading in a txt files or some other dataset that isn't comma-separated, use read.table() or read.delim()
+
+```{r,echo=FALSE}
+
+citibike = read.csv(paste0(data_folder,"Raw/citibike.csv"))
+
+citibike = read.delim(paste0(data_folder,"Raw/citibike.txt"))
+
+```
+
+
+### Let's work with some messy data 
+```{r}
+
+
+covid = read_csv(paste0(data_folder,"Raw/covid_cases_deaths.csv"))
+
+
+```
+
+What do we notice about that data?
+
+
+What types are the variables in the dataset?
+```{r}
+
+sapply(covid,class)
+
+```
+
+
+What changes do we think we need to do to the dataset?
+
+
+
+
+
+
+## mutate
+
+mutate() makes new variables and appends them to the end of the dataset
+
+```{r}
+
+covid1 = covid %>% 
+  mutate(population=as.numeric(population))
+
+```
+What is the error telling us?
+
+
+```{r}
+
+covid1 = covid %>% 
+  mutate(pop1 = gsub(",","",population),
+         pop1 = as.numeric(pop1))
+
+```
+
+
+```{r}
+
+covid2 = covid %>% 
+  mutate(pop1 = gsub(",","",population)) %>% 
+  mutate_at(vars(pop1),as.numeric)
+
+identical(covid1,covid2)
+
+```
+
+## rename
+
+rename() will allow you to more cleanly adjust column names
+
+```{r}
+
+covid1 = covid1 %>% 
+  rename(diabetes_prevalence = `diabetes prevalence`)
+
+```
+
+
+
+## working with dates
+
+```{r}
+
+covid1 = covid1 %>% 
+  mutate(date=as.Date(date,format="%m/%d/%Y"))
+
+```
+
+What can we do with a date variable?
+
+```{r}
+library(zoo)
+library(lubridate)
+
+month(covid1$date[1])
+year(covid1$date[1])
+quarter(covid1$date[1])
+days_in_month(covid1$date[1])
+
+```
+
+
+## Calculations
+What are some ways to do calculations?
+To see summary statistics of a variable in a dataframe or a vector, use summary()
+To add up values in a vector, use sum()
+To get the mean, use mean()
+To get the median, use median()
+To get variance and standard deviation, use var() and sd()
+
+max() and min() will give you maxmimum and minimum values, while which.max() would give you the index of the value that is the maximum in a vector
+
+BEWARE OF NAs
+
+To test or compare values, you can use inequalities. The code will give back a TRUE or FALSE.
+
+
+```{r}
+
+# lets start with getting a number of unique countries
+# length() gives you how long a vector is
+# unique() removes duplicates from a vector
+
+length(covid1$location)
+nrow(covid1)
+ncol(covid1)
+unique(covid1$location)
+length(unique(covid1$location)) # 244 different countries
+
+
+```
+
+```{r}
+# what are some statistics about covid cases?
+
+summary(covid1)
+
+summary(covid1$new_cases)
+
+mean(covid1$new_cases) # why is this not giving a number back?
+
+sd(covid1$new_cases)
+
+```
+## Grouping and summarizing
+
+```{r}
+
+# now let's get the average life expectancy by continent
+
+# What are the values in the gender column?
+unique(covid1$continent)
+
+# what if we only want to see observations from Asia? How could we make that as a new dummy variable? 
+
+# code for getting the data average life expectancy for Asian countries only:
+
+
+# What would the steps be for getting average life expectancy for all continents at once:
+
+covid1 %>% 
+  group_by(continent) %>% # tells the code to apply whatever comes next to each group individually
+  summarize(avg_life_expectancy = mean(life_expectancy,na.rm=TRUE)) %>% 
+  ungroup() # in case you end up saving this as an object and doing other stuff, tell R to stop grouping
+
+
+# What is the average age of the person in the dataset? 
+
+
+
+
+```
+#### What is this empty continent? Let's use a filter
+```{r}
+
+empty_continent = covid1 %>% 
+  filter(continent=="")
+
+# code if we want to remove these observations
+
+
+```
+
+
+#### Let's add another dataset
+```{r}
+
+osi = read_csv(paste0(data_folder,"Raw/osi.csv"))
+
+```
+
+How should we clean this up?
+
+```{r}
+
+osi1 = osi %>% 
+  select(-c(1,2)) %>% # which variables do we want to drop?
+  pivot_longer(cols="01Jan2020":"22May2022",values_to="osi",names_to="date") %>%
+  mutate(date=as.Date(date,format="%d%b%Y"))
+
+```
+
+
+## merging data sets
+
+```{r}
+
+combined = left_join(covid2,osi1,by=c("iso_code"="country_code","date"="date"))
+
+```
+
+
+## Putting it all together
+
+Let's make a dataset that gets (1) the average new cases per month in each country; (2) calculates the average monthly rate of growth; (3) spits out the average OSI and the average case growth rate by country
+
+```{r}
+
+
+
+```
+
+Extra credit: slice this dataset so that it gives you only the country with the highest average OSI for each continent
+
+```{r}
+
+
+```
+
+
+### Let's save our progress
+```{r}
+
+save.image(paste0(data_folder,"Processing/progress_20231013.RData"))
+
+write.csv(combined,paste0(data_folder,"Final/covid-final.csv"))
+
+```
