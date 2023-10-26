@@ -5,6 +5,13 @@ date: "2023-10-13"
 output: html_document
 ---
 
+```{r}
+
+
+
+```
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -36,15 +43,6 @@ Some more resources [here](https://sharp-lamport-f1a531.netlify.app/#1)
 ### Reviewing data frames
 
 How do we make a data frame again? What is a data frame made up of?
-
-```{r}
-
-
-
-```
-
-
-
 
 ### Loading data in
 
@@ -80,7 +78,7 @@ citibike = read.delim(paste0(data_folder,"Raw/citibike.txt"))
 ```{r}
 
 
-covid = read_csv(paste0(data_folder,"Raw/covid_cases_deaths.csv"))
+covid = read.csv(paste0(data_folder,"Raw/covid_cases_deaths.csv"))
 
 
 ```
@@ -110,7 +108,7 @@ mutate() makes new variables and appends them to the end of the dataset
 ```{r}
 
 covid1 = covid %>% 
-  mutate(population=as.numeric(population))
+  mutate_all(~as.numeric(.))
 
 ```
 What is the error telling us?
@@ -142,7 +140,7 @@ rename() will allow you to more cleanly adjust column names
 ```{r}
 
 covid1 = covid1 %>% 
-  rename(diabetes_prevalence = `diabetes prevalence`)
+  rename(diabetes_prevalence = diabetes.prevalence)
 
 ```
 
@@ -198,7 +196,6 @@ ncol(covid1)
 unique(covid1$location)
 length(unique(covid1$location)) # 244 different countries
 
-
 ```
 
 ```{r}
@@ -231,7 +228,8 @@ unique(covid1$continent)
 
 covid1 %>% 
   group_by(continent) %>% # tells the code to apply whatever comes next to each group individually
-  summarize(avg_life_expectancy = mean(life_expectancy,na.rm=TRUE)) %>% 
+  summarize(avg_life_expectancy = mean(life_expectancy,na.rm=TRUE),
+            calc2 = sd(life_expectancy,na.rm=TRUE)) %>% 
   ungroup() # in case you end up saving this as an object and doing other stuff, tell R to stop grouping
 
 
@@ -244,8 +242,9 @@ covid1 %>%
 #### What is this empty continent? Let's use a filter
 ```{r}
 
-empty_continent = covid1 %>% 
-  filter(continent=="")
+empty_continent = (covid1 %>% 
+  mutate(test = life_expectancy>70)) %>% 
+  filter(life_expectancy>70)
 
 # code if we want to remove these observations
 
@@ -276,7 +275,7 @@ osi1 = osi %>%
 
 ```{r}
 
-combined = left_join(covid2,osi1,by=c("iso_code"="country_code","date"="date"))
+combined = left_join(covid2 %>% mutate(date=as.Date(date,format="%Y-%m-%d")),osi1,by=c("iso_code"="country_code","date"="date"))
 
 ```
 

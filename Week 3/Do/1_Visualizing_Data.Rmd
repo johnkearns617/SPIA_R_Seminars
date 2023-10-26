@@ -1,0 +1,201 @@
+---
+title: "R Seminar Week 3 -- Visualizing Data"
+author: "John Kearns"
+date: "2023-10-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# this is th initial set up
+# include = FALSE tells R to not show this chunk of code when it knits the page
+# echo = TRUE sets it as a default to show the output of code in the final document
+
+library(tidyverse)
+library(usmap)
+
+```
+
+```{r,echo=FALSE,include=FALSE}
+
+master_dir = "C:/Users/16094/Documents/Year 2 - Princeton/Fall 2023/R Tutoring/SPIA_R_Seminars/Week 3/"
+do_folder = paste0(master_dir,"Do/")
+data_folder = paste0(master_dir,"Data/")
+results_folder = paste0(master_dir,"Results/")
+charts_folder = paste0(master_dir,"Charts/")
+
+```
+
+
+Let's load in the data we are working with today
+```{r}
+
+payment_data = read_csv(paste0(data_folder,"Raw/payment_data.csv"))
+
+```
+## Data transformations
+
+Get state names in the data set
+
+Hint: the numbers refer to the alphabetized state abbreviations + 51 for DC
+
+```{r}
+
+
+
+
+
+```
+
+
+Indicator for if they have ever used Apple, Google, or Samsung Pay
+```{r}
+
+payment_data = payment_data %>% 
+  mutate(mobile_apps = ifelse(apple_pay_adopt==1|google_pay_adopt==1|samsung_pay_adopt==1,1,0))
+
+```
+
+
+## Let's make a chart showing rate of app adoption by age
+
+First make the dataset
+```{r}
+
+chart1_data = payment_data %>% 
+  group_by(age) %>% 
+  summarize(mobile_apps = mean(mobile_apps,na.rm=TRUE)) %>% 
+  ungroup()
+
+```
+ 
+ 
+Now make the chart 
+```{r}
+
+ggplot(chart1_data,aes(x=age,y=mobile_apps)) +
+  geom_point()
+
+```
+
+That is a little ugly...
+Graphic options: themes, labels, sizes, colors
+
+```{r}
+
+ggplot(chart1_data,aes(x=age,y=mobile_apps)) +
+  geom_line(size=2)
+
+ggplot(chart1_data,aes(x=age,y=mobile_apps)) +
+  geom_line(size=2,color="darkorange")
+
+ggplot(chart1_data,aes(x=age,y=mobile_apps)) +
+  geom_line(size=2,color="darkorange") +
+  theme_bw()
+
+ggplot(chart1_data,aes(x=age,y=mobile_apps)) +
+  geom_line(size=2,color="darkorange") +
+  theme_bw() +
+  labs(x="Age",y="Adoption Rate",title="Adoption rate of Apple, Google, or Samsung Pay",caption="Source: Fed Atlanta")
+
+```
+
+
+# How about visualizing access to savings account by race 
+
+```{r}
+
+chart2_data = payment_data %>% 
+  mutate(race_txt = case_when(
+    hispaniclatino==1~"Hispanic",
+    race==1~"White",
+    race==2~"Black",
+    race==3~"Native American",
+    race==4~"Asian",
+    race==5~"Hawaiian or Pacific Isl.",
+    race==6~"Mixed Ethnicity"
+  )) %>% 
+  group_by(race_txt) %>% 
+  summarize(bank_acct = mean(have_savings_acct,na.rm=TRUE))
+
+```
+
+Make the chart
+```{r}
+
+ggplot(chart2_data,aes(x=race_txt,y=bank_acct,fill=race_txt)) +
+  geom_bar(stat="identity")
+
+# what do we want to change? Get rid of NA, reorder bars, anything else?
+
+
+```
+
+
+# Looking at relationship between income and buying things on computer by race?
+```{r}
+
+chart3_data = payment_data %>% 
+  mutate(race_txt = case_when(
+    hispaniclatino==1~"Hispanic",
+    race==1~"White",
+    race==2~"Black",
+    race==3~"Native American",
+    race==4~"Asian",
+    race==5~"Hawaiian or Pacific Isl.",
+    race==6~"Mixed Ethnicity"
+  )) %>% 
+  group_by(hhincome,race_txt) %>%
+  summarize(computer_use=mean(computer_adopt,na.rm=TRUE))
+
+
+```
+```{r}
+
+ggplot(chart3_data,aes(x=hhincome,y=computer_use,color=race_txt)) +
+  geom_line(size=2) +
+  facet_wrap(~race_txt) +
+  theme_bw()
+
+```
+
+
+Gender roles in financial situations?
+
+Make the dataset
+```{r}
+
+
+```
+
+```{r}
+
+
+
+
+```
+
+
+
+# Making quick maps
+
+```{r}
+
+chart5_data = payment_data %>% 
+  group_by(state) %>% 
+  summarize(mobile_instore = mean(mobile_inperson_adopt,na.rm=TRUE)) 
+
+```
+
+```{r}
+
+chart1 = usmap::plot_usmap(data = chart5_data, values = "mobile_instore") + 
+  scale_fill_continuous(name = "Mobile Payment Adoption Rate",type="viridis",trans="reverse") + 
+  theme(legend.position = "right")
+
+ggsave(paste0(charts_folder,"mobile_adoption.png"),chart1,width=10,height=10,unit="in")
+
+```
+
+
