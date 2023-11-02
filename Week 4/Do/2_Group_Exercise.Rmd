@@ -1,0 +1,86 @@
+---
+title: "R Seminar Week 4 -- For Loops"
+author: "John Kearns"
+date: "2023-11-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# this is the initial set up
+# include = FALSE tells R to not show this chunk of code when it knits the page
+# echo = TRUE sets it as a default to show the output of code in the final document
+
+library(tidyverse)
+library(readxl)
+
+```
+
+```{r,echo=FALSE,include=FALSE}
+
+#master_dir
+# fill in your working directory here
+
+```
+
+General context: We are trying to visualize employment data for some areas in NJ for the years 2016 to 2023
+
+### 1. Pull the data for the following area codes from the Bureau of Labor Statistics API, using a loop
+
+The following links will be helpful: 
+"https://data.bls.gov/cew/doc/titles/industry/industry_titles.csv"
+"https://data.bls.gov/cew/doc/titles/area/area_titles.csv"
+"https://www.bls.gov/cew/classifications/ownerships/sic-ownership-titles-csv.csv"
+"https://data.bls.gov/cew/data/api/2023/1/area/CS408.csv" # what is "2023/1/" referring to?
+
+
+```{r}
+codes = c("US000",34001,34003,34005,34007,34009,34011,34013,34015,34017,34019,34021
+,34023,34025,34027,34029,34031,34033,34035,34037,34039,34041)
+
+```
+
+```{r,echo=FALSE}
+
+# code to read in data for each of the codes
+# recommendation: make sure the loop works for one of the codes, before running the loop for all of them
+
+
+
+```
+
+### 2. In a new dataset, keep data that is ONLY the total covered employment for all industries. Join the information on for industry titles and area titles
+
+```{r}
+
+
+
+```
+
+### 3. Visualize average weekly wage for the US and each county in NJ on one line plot. Change the color theme of the plot and add some labels. *If time*, make Mercer County a princeton orange color, and the rest of the counties/areas black
+
+```{r}
+
+
+
+
+```
+### 4. In a new dataset, pull the following data for Mercer County: 2023 data, all industry codes less than 3 characters long and at least 100 employed persons in month 3. Make a bar chart showing the location quotients for the 5 highest and lowest industries in terms of location quotient. A location quotient is a measure of how much of the population is employed in a specific industry relative to the general population.
+
+```{r}
+
+
+
+```
+
+
+### 5. Using the all-county employment dataset, plot the change in average weekly wage in each country relative to the first year available. Save an individual plot for each county in a new pdf file. Which counties have grown the fastest and slowest?
+
+
+```{r}
+
+
+
+```
+

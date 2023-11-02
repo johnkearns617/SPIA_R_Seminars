@@ -1,0 +1,141 @@
+---
+title: "R Seminar Week 4 -- For Loops"
+author: "John Kearns"
+date: "2023-11-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# this is the initial set up
+# include = FALSE tells R to not show this chunk of code when it knits the page
+# echo = TRUE sets it as a default to show the output of code in the final document
+
+library(tidyverse)
+library(readxl)
+
+```
+
+```{r,echo=FALSE,include=FALSE}
+
+#master_dir
+# fill in your working directory here
+
+```
+
+
+How does a for-loop work
+```{r}
+
+for(i in 1:5){
+  
+  print(i)
+  
+}
+
+```
+
+If and else statements
+
+```{r}
+
+x = 2
+
+if(x%%2==0){
+  
+  print("This is even")
+  
+} else{
+  
+  print("This is odd")
+  
+}
+
+
+```
+Combining for and if statements in a user-defined function
+```{r}
+
+even_or_odd = function(numbers){
+  
+  for(num in numbers){
+    
+    if(num%%2==0){
+  
+  print("This is even")
+  
+} else{
+  
+  print("This is odd")
+  
+}
+    
+  }
+  
+}
+
+```
+
+```{r,error=TRUE}
+
+even_or_odd(1)
+
+even_or_odd(c(1,3,4,5,6,7))
+
+even_or_odd(NA)
+
+```
+
+What if we wanted to read in a bunch of sheets from an excel file?
+
+Look at the food dataset from the Census Bureau. Starting with the first sheet, what would we have to do to read this in a way we could work with the data?
+
+```{r}
+
+data = read_excel("C:/Users/16094/Documents/Year 2 - Princeton/Fall 2023/R Tutoring/SPIA_R_Seminars/Week 4/Data/Raw/food1_week62.xlsx")
+?read_excel()
+
+```
+
+```{r}
+
+data = read_excel("C:/Users/16094/Documents/Year 2 - Princeton/Fall 2023/R Tutoring/SPIA_R_Seminars/Week 4/Data/Raw/food1_week62.xlsx",range="A8:G199",col_names=FALSE)
+
+colnames(data) = c("characteristic","total","enough_wanted","enough_not_wanted","sometimes_not_enough","often_not_enough","not_report")
+
+# pick a characteristic we want to visualize
+
+
+```
+
+How could we use a for-loop to make our life easier?
+
+```{r,warning=FALSE}
+
+state_df = data.frame()
+
+for(state in c("US",state.abb)){
+  
+
+
+}
+
+
+```
+
+Now make a pdf with a bar chart for each state
+
+```{r}
+pdf(file="C:/Users/16094/Documents/Year 2 - Princeton/Fall 2023/R Tutoring/SPIA_R_Seminars/Week 4/Charts/state_bar_charts.pdf",height=10,width=10)
+for(stat1 in unique(state_df$state)){
+
+plot1 = 
+
+print(plot1)
+
+}
+dev.off()
+
+```
+

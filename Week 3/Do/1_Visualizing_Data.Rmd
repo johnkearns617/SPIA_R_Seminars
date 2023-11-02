@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-# this is th initial set up
+# this is the initial set up
 # include = FALSE tells R to not show this chunk of code when it knits the page
 # echo = TRUE sets it as a default to show the output of code in the final document
 
