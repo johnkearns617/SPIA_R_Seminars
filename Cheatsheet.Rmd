@@ -1,0 +1,589 @@
+---
+title: "R Coding Cheatsheet"
+author: "John Kearns"
+date: "2023-11-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Basic operations
+
+R can do math for you. Just type out any formula in the console and it will spit out the answer.
+
+```{r}
+2+2
+
+5*4/3
+
+(2+2)*4^3
+
+8%%7
+```
+
+### Variables and objects
+
+An object is assigned a value using '=' or '\<-'. R will save the object name and its associated value. You can look at your loaded objects in the environment pane in RStudio.
+
+Some naming conventions for objects:
+
+-   an object name cannot start with a number of symbol
+
+-   an object name cannot contain spaces
+
+-   it is best to keep them short but descriptive/rememberable
+
+    ```{r}
+    x = 3
+    x
+
+    x = 5
+    x
+
+    y = "Hello"
+    y
+
+    z = (2+2)*4^3
+    z
+    ```
+
+There are different kinds of data types in R: character (any type of string of letters or text), numeric (can be double or integer), dates, logical/boolean (True/False), factor (codes the data as discrete categories).
+
+You can do calculations with objects, but you cannot mix data types. A common error is adding numbers that have been mistakenly coded as text.
+
+```{r,error=FALSE}
+w = x/z
+w
+
+x+z
+```
+
+You can convert between types of data:
+
+```{r}
+as.numeric('3')
+as.character(3)
+is.numeric('3')
+is.numeric(3)
+```
+
+Check an object's data type using class()
+
+```{r}
+class(3)
+class('3')
+class(y)
+class(TRUE)
+```
+
+### Sequences and lists
+
+The colon in R has special properties. It can make a list of numbers from a specified start and end point, breaking, increasing by 1 each time.
+
+```{r}
+2:5
+
+3.5:7 # notice this only goes up to 6.5, because 7.5 would be beyond the end point.
+
+10:20/2 
+```
+
+You can also make sequences using seq()
+
+```{r}
+seq(from=1,to=100,by=8) # will go from 1 to 100 increasing by 8 each time
+
+seq(from=1,by=2,length.out=10) # increase by 2 ten times
+```
+
+Using 10:20 is equivalent to making a [vector]{.underline} by hand with those numbers:
+
+```{r}
+c(1,2,3,4,5)==1:5
+```
+
+c() links values together in a vector. You can do operations with vectors.
+
+```{r}
+new_object = c(1,2,3,4,5)
+
+new_object/5
+
+new_object*new_object # notice that the first element of the first object listed is multiplied by the first element of the second object, second by second, etc.
+```
+
+You can add values onto a vector using append()
+
+```{r}
+new_object2 = append(new_object,c(6,7,8))
+new_object2
+```
+
+### Strings
+
+You can combine objects and strings using paste()
+
+paste() takes a couple of arguments that may be useful:
+
+-   sep = " " controls what kind of text is put in between objects. The default is a space.
+
+-   collapse = " " will control what gets inserted between rows if you have multiple lines of text
+
+```{r}
+paste("Hello World")
+
+paste("Hello","World")
+
+paste("Hello","World","Again",sep="~")
+
+paste(c("Hello","Goodbye"),"World")
+
+paste(c("Hello","Goodbye"),"World",collapse = " new line ") # without collapse, this returns two elements "Hello World" and "Goodbye World"
+```
+
+### Slicing
+
+Square brackets [] allow you to request specific elements from a vector.
+
+object[1] would give the first element in the vector
+
+object[3:7] would give the 3rd through the 7th
+
+object[-6] would remove the 6th element
+
+If you are working with a data frame, dataframe[row#,column#] would allow you to select specific parts of the table.
+
+```{r}
+new_object[3]
+new_object[2:4]
+new_object[-1]
+new_object[-c(1,5)]
+```
+
+### Data frames
+
+Data frames are R's objects to represent a dataset. Each column is coded like a vector.
+
+You can start a data frame using data.frame()
+
+```{r}
+number_df = data.frame(column_1=c(1,2,3),column_2=c(4,5,6),column_3=c(7,8,9))
+number_df
+```
+
+Add a row to data frame using rbind()
+
+```{r}
+rbind(number_df,c(10,11,12)) # you need to have a value for each column specified 
+```
+
+View column names with colnames(dataframe name). You can change column names using colnames() as well.
+
+```{r}
+
+colnames(number_df)
+colnames(number_df) = paste0("col",c(1:3))
+colnames(number_df)[3] = "new"
+colnames(number_df)
+```
+
+Two ways to add a new column
+
+```{r}
+cbind(number_df,new_col=c(10,11,12))
+number_df$new_col = c(10,11,12)
+```
+
+Slicing data frames:
+
+```{r}
+
+number_df$col1[-1]
+
+number_df$new_col[2:3]
+
+number_df$new_col[c(1,3)]
+
+number_df[2:3,] # slices the 2nd and 3rd rows for all columns
+
+number_df[2:3,3] 
+
+number_df[2:3,"new_col"]
+
+```
+
+Check the class of a set of variables using: sapply(*dataframe*, class*)*
+
+sapply() applies a function to each element in a list or dataframe
+
+```{r}
+# sapply() example
+
+sapply(c(1.33729,5.51,5.49),round) # round each number
+
+sapply(number_df,class)
+```
+
+Calculations:
+
+To see summary statistics of a variable in a dataframe or a vector, use summary()
+
+To add up values in a vector, use sum()
+
+To get the mean, use mean()
+
+To get the median, use median()
+
+To get variance and standard deviation, use var() and sd()
+
+```{r}
+summary(number_df)
+sum(number_df$col1)
+mean(number_df$col2,na.rm=TRUE) # removes NAs from the calculations, if they are in the list of numbers
+median(number_df$new_col)
+var(number_df$col2)
+sd(number_df$col2)
+max(number_df$col2) # can also do min()
+which.max(number_df$col2) # gives index position of the maximum
+```
+
+### Dates
+
+Get current date using Sys.Date()
+
+```{r}
+Sys.Date()
+test_date = Sys.Date()
+```
+
+you can manipulate a date with addition and subtraction
+
+```{r}
+test_date - 5 # 5 days earlier
+test_date + 10000
+```
+
+Setting a date value:
+
+```{r}
+as.Date("2020-01-01",format="%Y-%m-%d")
+```
+
+There are different options for coding the format based on the text. Could take the month written out, capitalized, etc.. The format needs to match exactly how the date string is written (if "2020/01/01", format = "%Y/%m/%d")
+
+### Reading in and loading data
+
+Most data you use will be in csv format. R has a built-in function read.csv("filename.csv") to read in the data, but I recommend using read_csv("filename") from the package "readr". read_csv does some additional data cleaning and processing that is nice to have.
+
+You can put a web address that directs to a .csv in place of a filename, and R will access the internet for you.
+
+You can install a package by running the code install.packages("packagename")
+
+ex.: install.packages("readr")
+
+Then load it in:
+
+```{r,eval=FALSE}
+library(readr)
+read_csv()
+```
+
+You can use a menu to load in Excel files, csv, and other types using File -\> Import Dataset
+
+To test or compare values, you can use inequalities. The code will give back a TRUE or FALSE.
+
+```{r}
+2<3
+
+10>15
+
+3==4
+
+3!=4
+
+c(1,2,3,4,5)<=3
+
+"Hello"=="World"
+
+"Hello"=="Hello"
+```
+
+### Dplyr and tidyverse
+
+Tidyverse is a collection of packages in R that help you do things like make graphs, work with dates, and simplify the syntax of coding.
+
+Dplyr will help you work with data frames more efficiently
+
+```{r}
+library(tidyverse)
+```
+
+#### Pipes
+
+Pipes are the main contribution of dplyr
+
+%\>% is a pipe. You can make one using ctrl+shift+m when coding in R.
+
+A pipe tells R that you are chaining multiple functions together, taking the output of the line before the pipe and feeding it into the next function
+
+Example:
+
+```{r}
+
+number_df %>% # take number_df to start
+  select(col1,col2) %>% # selecting a new dataframe that is only col1 and col2
+  filter(col1<3) # drop any observations where col1 is less than 3
+
+number_df
+```
+
+Notice how it the code is doing multiple steps, but does not edit the original data frame. I could have assigned the dplyr code to number_df (number_df = number_df %\>% ......) but that would have overwritten the original dataframe, so do that sparingly.
+
+#### Mutate
+
+The most common function I use in dplyr is mutate(), which tells R to either **make a new column** or **edit an existing column**. You can do multiple column transformations inside one mutate().
+
+You can reference column names without the \$, and you do not need to put the column names in quotation marks.
+
+```{r}
+
+number_df %>% 
+  mutate(col1_new = col1+5,
+         col_new2 = col1_new/col2, # you can interact with new columns have made inside the mutate. the code runs in order.
+         text_col = paste(col1,"as text"),
+         static_col = 5) # will set all observations to be 5 in this column
+```
+
+There are two other similar functions
+
+**mutate_at**(vars(*names of specific variables you want to edit*),\~*functionname*(.))
+
+Imagine there are only a couple of variables that are coded as text but should be numbers. You can edit only those variables.
+
+```{r}
+test_df = data.frame(text_col = c("1","2","3"),text_dont_convert = c("a","b","c"))
+
+test_df
+
+test_df = test_df %>% 
+  mutate_at(vars(text_col),~as.numeric(.))
+
+test_df
+
+# notice how the first column is now a number
+```
+
+**mutate_all**(\~*functionname*(.))
+
+Imagine you wanted to convert all of your columns to text:
+
+```{r}
+number_df %>% 
+  mutate_all(~as.character(.))
+```
+
+#### Rename
+
+rename() allows you to set new names for columns
+
+rename(*newname,oldname*), and the names are not in quotation marks
+
+```{r}
+number_df %>% 
+  rename(column1=col1)
+```
+
+#### Filter
+
+Filter() applies a test and keeps all observations where it is true
+
+== tests if two things are equal
+
+& means two separate tests need to be equal ("and")
+
+\| tests for either option ("or")
+
+```{r}
+number_df %>% 
+  filter(col1<3&col2<5) # keep all observations where BOTH statements are true
+
+number_df %>% 
+  filter(col1<3|col2<5) # keep all observations where EITHER statement is true
+```
+
+#### Summarize
+
+Summarize() works like mutate() but creates a whole new dataframe that presents aggregate information about columns in the original dataset.
+
+It is similar to "collapse" in Stata
+
+It will only return the exact information you ask R for.
+
+```{r}
+number_df %>% 
+  summarize(mean_col1 = mean(col1,na.rm=TRUE))
+```
+
+#### Group_by
+
+group_by() will apply any mutate, filter, or summarize by different classes in a certain variable. For example, you can do filtering, summarizing, and mutating to different regions in the US in the following dataset:
+
+```{r}
+bind_cols(state.x77,region=as.character(state.region)) %>%  # creates a dataframe that matches some state statistics with their census region
+  group_by(region) %>% 
+  filter(Illiteracy>1) %>%  # keep states with illiteracy greater than 15
+  mutate(average_pop = mean(Population,na.rm=TRUE)) %>%  # average population for each region, this is making a static column
+  summarize(number_of_states = n(), # n() counts the number of active observations in each group
+            murder_rate = mean(Murder,na.rm=TRUE),
+            variance_average_pop = var(average_pop,na.rm=TRUE)) # the variance should be 0 because the code is setting the same value for each state in a given region
+```
+
+Whenever you are using group_by(), put ungroup() as your last line
+
+#### Slice
+
+slice() selects specific rows
+
+```{r}
+
+as.data.frame(state.x77) %>% 
+  slice(4:7) # rows 4 through 7
+```
+
+#### Pivot_longer and pivot_wider
+
+Pivot refers to reshaping the dataset from a long format or wide format, most helpful when trying to make a line plot with multiple lines.
+
+pivot_longer(cols=c(*names of columns that you want to be longways now),*values_to = *"name of column you want the values to go into"*, names_to=*"name of column you want the list of column names to go to"*)
+
+```{r}
+
+head(bind_cols(state_name = state.name,state.x77),10) # what the data looks like before
+
+bind_cols(state_name = state.name,state.x77) %>% 
+  pivot_longer(cols=Population:Area,values_to="value",names_to="old_column_name") # the column in the cols= is selecting all columns between Population and Area
+```
+
+#### Join
+
+If you want to merge a dataset, you give two data frames, and then in the by= argument, put the names the column in the datasets you are matching on. Left_join will keep all observations in the first dataset listed, merging the second dataframe onto it.
+
+left_join(*dataframe1,dataframe2,*by=c("column in df1"="column in df2"))
+
+### GGPlot
+
+ggplot2 is the library that allows you to make charts more pretty than you can in base R code.
+
+When making lines of code in ggplot, each line needs to be followed by "+" instead of a pipe
+
+```{r}
+example_df = data.frame(datasets::WorldPhones,year=c(1951,1956:1961)) %>% pivot_longer(cols="N.Amer":"Mid.Amer")
+# number of phones in each region over time
+```
+
+#### Line plot
+
+```{r}
+ggplot(example_df,aes(x=year,y=value,color=name)) +
+  geom_line(size=2) +
+  theme_bw() +
+  labs(x="X title",y="Y title",title="Main title",caption="this is the caption")
+```
+
+#### Bar chart
+
+```{r}
+
+ggplot(example_df %>% filter(year==1951),aes(x=name,y=value,fill=name)) + # when making bar chart, fill is what controls the color 
+  geom_bar(stat="identity") + # tells R to use the value as given, not some other summary statistic
+  theme_bw() +
+  labs(x="region",y="number of phones")
+```
+
+#### Faceting
+
+You can make the same chart for different groups, kind of like how we use group_by() in dplyr
+
+```{r}
+ggplot(example_df,aes(x=year,y=value,color=name)) +
+  geom_line(size=2) +
+  theme_bw() +
+  facet_wrap(~name,scales="free_y") # free_y for scales means each square gets its own scale on the y-axis, instead of all being the same
+```
+
+#### Scatter plot and getting a line of best fit
+
+```{r}
+
+# weight and mpg of cars
+ggplot(mtcars,aes(x=wt,y=mpg)) +
+  geom_point(size=2) +
+  geom_smooth(method="lm")
+```
+
+### For-loops basics
+
+a for-loop lets you run the same piece of code, replacing one variable for each element in a list. For example, the following code prints out a given number for each of 1 through 5:
+
+```{r}
+for(i in 1:5){
+  
+  print(i)
+  
+}
+```
+
+The general syntax is for(x in *a list)*{ *code here* }
+
+### If else statements
+
+```{r}
+x = 2
+
+if(x%%2==0){
+  
+  print("This is even")
+  
+} else{
+  
+  print("This is odd")
+  
+}
+```
+
+```{r}
+ for(num in c(1,4,6,2,3,5,10,15,389280,981298093)){
+    
+    if(num%%2==0){
+  
+  print(paste0(num," is even"))
+  
+} else{
+  
+  print(paste0(num," is odd"))
+  
+}
+ }
+```
+
+Some contexts where you might be using loops is when reading in a bunch of files at once, or doing things state by state. See in the group exercise HTML file in the Week 4 folder on github for an explanation of when this might be relevant.
+
+### Miscellaneous functions
+
+length() will tell you how long a vector is
+
+nrow(df) and ncol(df) will give you numbers of rows and columns in a data frame
+
+unique() will return the unique values in a vector, removing the duplicates
+
+table() will return a frequency table for each of the distinct values in a vector
+
+```{r}
+table(c(1:5,4:20,10:30))
+```
+
+save.image(filename.RData) saves the entire environment (all objects) you have open to a file called an RData file.
+
+write.csv(dataframe,filename) writes a data frame to a csv

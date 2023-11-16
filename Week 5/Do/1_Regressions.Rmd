@@ -1,0 +1,172 @@
+---
+title: "Week 5 - Regressions and Tables"
+author: "John Kearns"
+date: "2023-11-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# installing the packages you need
+
+#install.packages(c("lmtest","broom","estimatr","texreg","vtable","stargazer","robustbase"))
+
+library(tidyverse)
+library(robustbase)
+
+```
+
+### Load data in
+
+```{r}
+
+data("education")
+
+education = education %>% 
+    rename(residents = X1,
+           per_capita_income = X2,
+           young_residents = X3,
+           per_capita_exp = Y,
+           state = State) %>% 
+    mutate(region = case_when(
+        Region == 1 ~ "northeast",
+        Region == 2 ~ "northcenter",
+        Region == 3 ~ "south",
+        Region == 4 ~ "west"
+    )) %>% 
+    select(-Region)
+
+```
+
+
+### summary statistics tables
+
+```{r}
+library(vtable)
+
+st(education)
+
+```
+That is pretty ugly...but what is each part coming from?
+
+```{r}
+
+st(education %>% 
+     select(residents,per_capita_income,per_capita_exp,region) %>% 
+     rename("Number of residents"=residents,
+            "State income per capita"=per_capita_income,
+            "State per capita education expenditure"=per_capita_exp,
+            "State region"=region),
+   digits=2)
+
+
+```
+
+### t-tests
+
+```{r}
+
+t.test(education$per_capita_exp[education$region=="west"],education$per_capita_exp[education$region=="south"])
+
+
+```
+
+### regressions
+
+#### OLS
+
+```{r}
+
+lmfit = lm(per_capita_exp ~ residents + young_residents + per_capita_income, data = education)
+
+summary(lmfit)
+
+```
+
+#### adding fixed effects
+
+```{r}
+
+lmfit = lm(per_capita_exp ~ residents + young_residents + per_capita_income + factor(region), data = education)
+
+summary(lmfit)
+
+```
+### changing standard errors
+
+To get heteroskedasticity-robust SEs, which should be your default.
+
+Option 1:
+```{r}
+
+library(sandwich)
+library(lmtest)
+
+coeftest(lmfit, vcov = vcovHC(lmfit))
+
+coeftest(lmfit, vcov = vcovHC(lmfit,type='HC1'))
+
+```
+
+
+Option 2:
+
+```{r}
+library(estimatr)
+
+lmfit = lm_robust(per_capita_exp ~ residents + young_residents + per_capita_income + factor(region), data = education,se_type="stata")
+
+summary(lmfit) # see how this is identical to the model we last ran
+
+```
+A drawback of lm_robust is that it is not optimized for working with time series standard errors/autocorrelation. The vcov() method might be better for this.
+
+
+### Making regression tables
+
+saving regression output as an object: Will only work with lm() objects
+
+```{r}
+
+library(broom)
+
+lmfit = lm(per_capita_exp ~ residents + young_residents + per_capita_income + factor(region), data = education)
+
+tidy_lm = tidy(lmfit)
+
+tidy_lm
+
+```
+
+Exporting regression tables:
+
+```{r}
+
+library(texreg)
+
+mod1 = lm(per_capita_exp ~ residents, data = education)
+mod2 = lm(per_capita_exp ~ residents + young_residents, data = education)
+mod3 = lm(per_capita_exp ~ residents + young_residents + per_capita_income, data = education)
+mod4 = lm(per_capita_exp ~ residents + young_residents + per_capita_income + factor(region), data = education)
+
+htmlreg(mget(c("mod1","mod2","mod3","mod4")), # mget() pulls objects with the given names
+        include.ci=FALSE,  # shows standard errors instead of confidence intervals
+        file="regression_results.html",
+        caption="Regression results in order", # title of table
+        #omit.coef=c(), put the names of any variables you do not want to show in the regression output
+        #custom.gof.rows=list("name"=values), if you want to add another row of summary statistics 
+        custom.model.names=c("Simple","Add young","Add income","Add region"),
+        include.rsquared = TRUE,
+        include.adjrs=FALSE,
+        include.rmse=FALSE, 
+        include.nobs = TRUE,
+        start = c(.01,.05,.1)
+        #reorder.gof=c(1,4,5,6,7,2,3) gives the order of the summary statistics rows
+        )
+
+
+```
+

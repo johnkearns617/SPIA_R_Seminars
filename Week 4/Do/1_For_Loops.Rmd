@@ -28,7 +28,7 @@ library(readxl)
 How does a for-loop work
 ```{r}
 
-for(i in 1:5){
+for(x in 1:5){
   
   print(i)
   
@@ -40,9 +40,9 @@ If and else statements
 
 ```{r}
 
-x = 2
+x = TRUE
 
-if(x%%2==0){
+if(x){
   
   print("This is even")
   
@@ -57,21 +57,10 @@ if(x%%2==0){
 Combining for and if statements in a user-defined function
 ```{r}
 
-even_or_odd = function(numbers){
+even_or_odd = function(numbers,test=TRUE){
   
-  for(num in numbers){
-    
-    if(num%%2==0){
-  
-  print("This is even")
-  
-} else{
-  
-  print("This is odd")
-  
-}
-    
-  }
+if(test){ print("correct thing")}
+else{ print("other option")}
   
 }
 
@@ -117,7 +106,20 @@ state_df = data.frame()
 
 for(state in c("US",state.abb)){
   
+  print(state)
+  
+data = read_excel("C:/Users/16094/Documents/Year 2 - Princeton/Fall 2023/R Tutoring/SPIA_R_Seminars/Week 4/Data/Raw/food1_week62.xlsx",range="A8:G199",col_names=FALSE,sheet=state)
+  
 
+colnames(data) = c("characteristic","total","enough_wanted","enough_not_wanted","sometimes_not_enough","often_not_enough","not_report")
+
+data = data %>% 
+  mutate(stat=state) %>% 
+  mutate_at(vars(total:not_report),~as.numeric(.))
+
+state_df = bind_rows(state_df,data)
+
+print(state)
 
 }
 
@@ -128,9 +130,11 @@ Now make a pdf with a bar chart for each state
 
 ```{r}
 pdf(file="C:/Users/16094/Documents/Year 2 - Princeton/Fall 2023/R Tutoring/SPIA_R_Seminars/Week 4/Charts/state_bar_charts.pdf",height=10,width=10)
-for(stat1 in unique(state_df$state)){
+for(stat1 in unique(state_df$stat)){
 
-plot1 = 
+plot1 = ggplot(state_df %>% filter(stat==stat1),aes(x=total,y=enough_wanted)) +
+  geom_point() +
+  labs(caption=paste0(stat1),x="x title",title="this is the main title")
 
 print(plot1)
 
