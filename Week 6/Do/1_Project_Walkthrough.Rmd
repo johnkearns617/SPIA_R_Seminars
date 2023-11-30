@@ -1,0 +1,135 @@
+---
+title: "1_Project_WalkThrough"
+author: "John Kearns"
+date: "2023-11-29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Context for this analysis: Look at what variables were impacting the likelihood of an immigrant to be naturalized, as per a vote by their community members.
+
+Load packages:
+
+```{r}
+
+library(tidyverse)
+library(estimatr)
+library(texreg)
+library(robustbase)
+library(vtable)
+library(sandwich)
+library(lmtest)
+
+```
+
+Load data:
+
+```{r}
+
+#
+setwd("C:/Users/16094/Documents/Year 2 - Princeton/Fall 2023/R Tutoring/SPIA_R_Seminars/Week 6/")
+
+#
+data = haven::read_dta("Data/swiss_passports.dta")
+
+```
+
+1.  Construct a table of summary statistics for the variables in the data set. Is there anything noteworthy from the overall statistics? Any obvious differences if you look at europeans versus people from Turkey?
+
+```{r}
+
+
+
+```
+
+1.a. percent_novotes is the outcome variable of interest. What is its average value? What is its standard deviation? Applications are approved if the fraction of no votes is less than 50 percent. What fraction of citizenship applications were approved?
+
+```{r}
+
+
+
+```
+
+1.b. The various land\_ variables are the explanatory variables of interest. What fraction of applications were from Turkey and Yugoslavia? From Central and Eastern Europe? etc. How did this fraction vary over the 1970-2003 sample period? Make a plot of this
+
+```{r}
+
+
+```
+
+2.  
+
+    a.  Construct table showing land\_ and columns are number of obs, mean of percent_novotes, sd, standard error, and 95% confidence interval for the mean
+
+```{r}
+
+
+
+```
+
+3.a. Show the impact of nationality in regression form on percent of no votes received
+
+```{r}
+
+
+```
+
+3.  Add skill level to regression
+
+```{r}
+
+```
+
+3.c. male, kids, married, born_ch, age, and education all may be helpful
+
+```{r}
+
+
+```
+
+3.d. 1. How many non-NA observations on the language and integration variable?
+
+```{r}
+
+
+```
+
+3.d. 2. Do the conclusions I reach in part c change if I restrict the samples based on availability of language data?
+
+```{r}
+
+
+
+
+```
+
+3.d.3. add language variables as additional controls
+
+```{r}
+
+
+```
+
+3.d.4. Add the integration variables. Export your regressions to a table.
+
+```{r}
+
+
+```
+
+4.  Do the land\_ coefficients depend on occupation skills or educational level
+
+```{r}
+
+
+```
+
+Plot the nationality coefficients by decade to see any possible changes
+
+```{r}
+
+
+```

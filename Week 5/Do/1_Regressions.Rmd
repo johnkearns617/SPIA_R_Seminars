@@ -71,16 +71,29 @@ st(education %>%
 
 t.test(education$per_capita_exp[education$region=="west"],education$per_capita_exp[education$region=="south"])
 
-
 ```
 
 ### regressions
+
+
+### Make a plot
+
+```{r}
+
+ggplot(education,aes(x=per_capita_income,y=per_capita_exp,color=region)) +
+  geom_point() +
+  geom_smooth(method="lm",inherit.aes = FALSE,aes(x=per_capita_income,y=per_capita_exp)) +
+  stat_poly_eq(use_label(c("eq", "R2")))
+
+```
+
+
 
 #### OLS
 
 ```{r}
 
-lmfit = lm(per_capita_exp ~ residents + young_residents + per_capita_income, data = education)
+lmfit = lm(per_capita_exp ~ residents, data = education)
 
 summary(lmfit)
 
@@ -95,6 +108,18 @@ lmfit = lm(per_capita_exp ~ residents + young_residents + per_capita_income + fa
 summary(lmfit)
 
 ```
+
+### interaction terms
+
+```{r}
+
+education = education %>% 
+  mutate(northeast = ifelse(region=="northeast",1,0))
+
+lmfit = lm(per_capita_exp ~ per_capita_income*northeast, data = education)
+
+```
+
 ### changing standard errors
 
 To get heteroskedasticity-robust SEs, which should be your default.
